@@ -43,12 +43,21 @@ test('schemas are equal', () => {
     assert.ok(!s1.equals(s6), 'should not match based on additional field z')
 })
 
-test('schema join', () => {
+test('schema join', t => {
     const s1 = new Schema({columns: [['x', 'Integer']]})
     const s2 = new Schema({columns: [['y', 'Boolean']]})
     const joined = new Schema({columns: [['x', 'Integer'], ['y', 'Boolean']]})
-    
-    assert.ok(s1.join(s2).equals(joined), 'should contain x:int and y:bool after join')
+
+    t.test('join', () => {
+        assert.ok(s1.join(s2).equals(joined), 'should contain x:int and y:bool after join')
+    })
+
+    t.test('project', () => {
+        const projected = joined.project({ columns: [{ column: 'x', alias: 'z' }] })
+        assert.equal(projected.columnCount, 1)
+        assert.ok(projected.hasColumnOfType('z', 'Integer'))
+    })
+
 })
 
 test('tuple', () => {
@@ -79,4 +88,8 @@ test('relation', t => {
     t.test('correct tuple count after init', () => assert.equal(r1.rowCount, 1))
     t.test('relation rejects tuples with mismatching schema', () => assert.ok(!r1.schema.matches(t2)))
     t.test('relation accepts tuple with matching schema', () => assert.ok(r1.schema.matches(t1)))
+    t.test('correct tuple count after insert', () => {
+        r1.addRow([{column: 'flag', value: 'false'}, {column: 'count', value: '0'}])
+        assert.equal(r1.rowCount, 2)
+    })
 })
