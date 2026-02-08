@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { Schema, Column, fieldParsers, Tuple, Relation } from '../../src/dbms/dbms.ts'
+import { Schema, Column, fieldParsers, Tuple, Relation } from '../../src/dbms/schema.ts'
 
 test('columns accept', t => {
     const int = new Column('', 'Integer')

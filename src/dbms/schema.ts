@@ -8,6 +8,14 @@ type ColumnTypeToNativeTypeMapping = {
 }
 type ColumnTypeValidator<T> = (x: unknown) => x is T
 type StringToColumnTypeParser<T> = (x: string) => T
+type ColumnWithValue =
+  {
+    // ensures T is inferred from .column and enforces consistency with the type of .value
+    [T in ColumnType]: {
+      value: ColumnTypeToNativeTypeMapping[T];
+      column: Column<T>;
+    }
+  }[ColumnType];
 
 
 export const columnValidators: {[type in ColumnType]: ColumnTypeValidator<type>} = {
@@ -85,15 +93,6 @@ export class Schema {
         })
     }
 }
-
-type ColumnWithValue =
-  {
-    // ensures T is inferred from .column and enforces consistency with the type of .value
-    [T in ColumnType]: {
-      value: ColumnTypeToNativeTypeMapping[T];
-      column: Column<T>;
-    }
-  }[ColumnType];
 
 export class Tuple {
     readonly columns: {[name: string]: ColumnWithValue}
