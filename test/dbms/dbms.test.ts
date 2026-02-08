@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+
 import { Schema, Column, fieldParsers, Tuple, Relation } from '../../src/dbms/dbms.ts'
 
 test('fields accept', t => {
@@ -51,7 +52,7 @@ test('schema join', () => {
 })
 
 test('tuple', () => {
-    const t1 = new Tuple({ columns: [{
+    new Tuple({ columns: [{
         value: 42,
         column: new Column('foo', 'Integer')
     }]})

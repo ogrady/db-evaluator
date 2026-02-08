@@ -66,7 +66,7 @@ export class Schema {
     }
 
     matches (tuple: Tuple) {
-        tuple.columns
+        //tuple.columns
     }
 
     constructor ({fields}: {fields: readonly [string, ColumnType | Column][]}) {
@@ -119,8 +119,10 @@ export class Relation {
     }
 }
 
+/*
 interface VolcanoIterator<T> {
     open (): void
     close (): void
     next (): T
 }
+*/
