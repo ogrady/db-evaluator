@@ -46,36 +46,36 @@ export class Column<T extends ColumnType = ColumnType> {
 }
 
 export class Schema {
-    readonly fields: ColumnList
-    #fieldNames?: string[]
-    get fieldNames () { return this.#fieldNames ??= Object.keys(this.fields) }
-    get fieldCount () { return this.fieldNames.length }
+    readonly column: ColumnList
+    #columnNames?: string[]
+    get columnNames () { return this.#columnNames ??= Object.keys(this.column) }
+    get columnCount () { return this.columnNames.length }
 
     hasField (field: string) {
-        return field in this.fields
+        return field in this.column
     }
 
     hasFieldOfType (field: string, type: ColumnType): field is keyof ColumnList {
-        return field in this.fields && this.fields[field].type === type 
+        return field in this.column && this.column[field].type === type 
     }
 
     equals (other: Schema) {
-        return other.fieldCount === this.fieldCount
-            ? Object.values(this.fields).every(({name, type}) => other.hasFieldOfType(name, type))
+        return other.columnCount === this.columnCount
+            ? Object.values(this.column).every(({name, type}) => other.hasFieldOfType(name, type))
             : false
     }
 
     matches (tuple: Tuple) {
-        //tuple.columns
+        return tuple.schema.equals(this)
     }
 
-    constructor ({fields}: {fields: readonly [string, ColumnType | Column][]}) {
-        this.fields = Object.fromEntries(fields.map(([n,t]) => [n, t instanceof Column ? t : new Column(n,t)]))
+    constructor ({columns}: {columns: readonly [string, ColumnType | Column][]}) {
+        this.column = Object.fromEntries(columns.map(([n,t]) => [n, t instanceof Column ? t : new Column(n,t)]))
     }
 
     join (other: Schema) {
         return new Schema({
-            fields: Object.entries(this.fields).concat(Object.entries(other.fields))
+            columns: Object.entries(this.column).concat(Object.entries(other.column))
         })
     }
 }
@@ -90,7 +90,23 @@ type ColumnWithValue =
   }[ColumnType];
 
 export class Tuple {
+    /*
+    readonly schema: Schema
+    readonly values: { }
+
+    constructor ({ values, schema }: { schema: Schema, values: any }) {
+        this.schema = schema
+        this.values = values
+    }
+        */
     readonly columns: {[name: string]: ColumnWithValue}
+    #schema?: Schema
+    get schema () {
+        return this.#schema ??= new Schema({
+            columns: Object.entries(this.columns)
+                .map(([name, col]) => [name, col.column])
+        })
+    }
 
     constructor ({columns}: {columns: ColumnWithValue[]}) {
         this.columns = Object.fromEntries(columns.map(col => [col.column.name, col]))
@@ -113,7 +129,7 @@ export class Relation {
     addRow (data: {column: string, value: string}[]) {
         this.tuples.push(
             new Tuple({
-                columns: data.map(({column, value}) => genericFieldParser(this.schema.fields[column], value))
+                columns: data.map(({column, value}) => genericFieldParser(this.schema.column[column], value))
             })
         )
     }
