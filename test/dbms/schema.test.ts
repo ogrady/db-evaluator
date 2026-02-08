@@ -75,7 +75,7 @@ test('relation', t => {
     const t1 = new Tuple({
         columns: [
             { value: true, column: new Column('flag', 'Boolean') },
-            { value: 42, column: new Column('count', 'Integer') }
+            { value: 4, column: new Column('count', 'Integer') }
         ]    
     })
     const t2 = new Tuple({
@@ -89,7 +89,12 @@ test('relation', t => {
     t.test('relation rejects tuples with mismatching schema', () => assert.ok(!r1.schema.matches(t2)))
     t.test('relation accepts tuple with matching schema', () => assert.ok(r1.schema.matches(t1)))
     t.test('correct tuple count after insert', () => {
-        r1.addRow([{column: 'flag', value: 'false'}, {column: 'count', value: '0'}])
+        r1.addRow([{column: 'flag', value: 'false'}, {column: 'count', value: '2'}])
         assert.equal(r1.rowCount, 2)
+    })
+    t.test('iterating through tuples', () => {
+        assert.equal(r1.next(), t1)
+        assert.equal(r1.next()?.columns['count'].value, 2)
+        assert.equal(r1.next(), null)
     })
 })

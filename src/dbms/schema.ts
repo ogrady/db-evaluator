@@ -1,3 +1,5 @@
+import type { VolcanoIterator } from "./algebra"
+
 type ColumnType = 'Boolean' | 'String' | 'Integer' | 'Float'
 type ColumnList<K extends string = string> = Record<K, Column>
 type ColumnTypeToNativeTypeMapping = {
@@ -109,9 +111,10 @@ export class Tuple {
     }
 }
 
-export class Relation {
+export class Relation implements VolcanoIterator<Tuple> {
     readonly schema: Schema
     readonly tuples: Tuple[] = []
+    #currentIndex = 0
 
     get rowCount () {
         return this.tuples.length
@@ -122,6 +125,20 @@ export class Relation {
         this.tuples.push(...tuples)
     }
 
+    open(): void {
+        this.#currentIndex = 0
+    }
+
+    close(): void {
+        this.#currentIndex = -1
+    }
+
+    next() {
+        return this.#currentIndex >= 0 && this.#currentIndex < this.rowCount
+            ? this.tuples[this.#currentIndex++]
+            : null
+    }
+
     addRow (data: {column: string, value: string}[]) {
         this.tuples.push(
             new Tuple({
@@ -130,11 +147,3 @@ export class Relation {
         )
     }
 }
-
-/*
-interface VolcanoIterator<T> {
-    open (): void
-    close (): void
-    next (): T
-}
-*/
