@@ -1,4 +1,4 @@
-import type { VolcanoIterator } from "./algebra"
+import type { VolcanoIterator } from "./iteration"
 
 type ColumnType = 'Boolean' | 'String' | 'Integer' | 'Float'
 type ColumnList<K extends string = string> = Record<K, Column>
